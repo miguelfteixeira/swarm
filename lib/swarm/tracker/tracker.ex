@@ -340,6 +340,14 @@ defmodule Swarm.Tracker do
     # let remote node know we've got the registry
     GenStateMachine.cast(from, {:sync_ack, self(), new_state.clock, get_registry_snapshot()})
     info("local synchronization with #{sync_node} complete!")
+
+    info("############################################################################################")
+    info("####### from #{Kernel.inspect(node(from))} | sync_node: #{Kernel.inspect(sync_node)}")
+    info("####### pending_sync_reqs before filter: #{Enum.map(new_state.pending_sync_reqs, fn x -> Kernel.inspect(node(x)) end)}")
+    new_state = %{new_state | pending_sync_reqs: Enum.filter(new_state.pending_sync_reqs, fn x -> x != from end)}
+    info("####### pending_sync_reqs after filter: #{Enum.map(new_state.pending_sync_reqs, fn x -> Kernel.inspect(node(x)) end)}")
+    info("############################################################################################")
+
     resolve_pending_sync_requests(new_state)
   end
 
